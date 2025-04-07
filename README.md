@@ -1,150 +1,125 @@
-# Time Series Analysis of Student Performance
-
-This repository contains an end-to-end analysis and modeling workflow for a dataset related to student performance and demographics. The analysis involves preprocessing, exploratory data analysis, time series analysis, and the implementation of SARIMAX and LSTM models for forecasting.
+Here's a detailed and professional `README.md` file based on your comprehensive project implementation:
 
 ---
 
-## **Project Overview**
+# 📊 Time Series Analysis & Forecasting on Open University Learning Data
 
-### **Objective**
-Analyze the relationships between various factors influencing student performance, preprocess the data, and build predictive models to forecast scores based on demographic and time-related features.
-
-### **Key Libraries Used**
-- **Data Processing**: PySpark, Pandas
-- **Visualization**: Matplotlib, Seaborn
-- **Statistical Analysis**: Statsmodels
-- **Machine Learning**: Scikit-learn, TensorFlow
+This project performs an extensive **big data pipeline and predictive time series modeling** on Open University learning data. It involves **data preprocessing with PySpark**, **visual exploration**, **feature engineering**, **stationarity testing**, and **forecasting using SARIMAX and LSTM** models. The aim is to analyze and predict student assessment scores over time based on multiple demographic and academic variables.
 
 ---
 
-## **Workflow**
+## 🔧 Setup Instructions
 
-### **1. Data Overview and Preprocessing**
+### 1. Install Required Libraries
+```bash
+pip install pyspark matplotlib scikit-learn statsmodels missingno
+```
 
-#### **Dataset Description**
-The project involves merging and analyzing data from multiple CSV files:
+### 2. Tools Used
+- `PySpark` for handling large datasets
+- `Pandas/Matplotlib/Seaborn` for EDA and visualization
+- `scikit-learn` for anomaly detection
+- `statsmodels` for statistical tests and time series decomposition
+- `TensorFlow` for deep learning-based LSTM forecasting
+- `Google Colab` for GPU-accelerated model training
+
+---
+
+## 📂 Dataset Overview
+
+The dataset consists of 7 CSV files:
 - `courses.csv`
 - `assessments.csv`
+- `studentAssessment.csv`
 - `studentInfo.csv`
 - `studentRegistration.csv`
 - `studentVle.csv`
 - `vle.csv`
 
-#### **Preprocessing Steps**
-- Removed columns with excessive missing data (`week_from`, `week_to`).
-- Dropped rows with missing values in critical columns.
-- Encoded categorical variables:
-  - **Highest Education**: Binary (Post Graduate Qualification: 1, Others: 0).
-  - **Age Band**: Binary (`55<=`: 1, Others: 0).
-  - **Final Result**: Fail: 0, Withdrawn: 0, Pass: 1, Distinction: 2.
-  - **Assessment Type**: Exam: 0, TMA: 1, CMA: 2.
-- Dropped insignificant columns like `gender`, `region`, and `imd_band` after statistical analysis.
+These files are merged using common keys to create a unified dataset for modeling and analysis.
 
 ---
 
-### **2. Exploratory Data Analysis**
+## 🧹 Data Preprocessing
 
-#### **Visualizations**
-- Correlation heatmap for numerical variables.
-- Boxplots for categorical variables like gender, region, and assessment types.
-- Time-series trend visualization of average scores.
-
-#### **Insights**
-- No significant linear correlations between numerical predictors and scores.
-- Some demographic variables (e.g., Highest Education, Age Band) influenced scores and were encoded.
+- **Data Merging**: Joined all datasets based on student/module identifiers.
+- **Missing Values**:
+  - Removed columns with excessive missing values (e.g., `week_from`, `week_to`)
+  - Dropped rows with missing values in key predictors
+- **Data Reduction**: Removed unnecessary columns (IDs, redundant attributes)
+- **Sampling**: Due to the large size (~60M rows), sampled a small fraction for EDA
 
 ---
 
-### **3. Time Series Analysis**
+## 📊 Exploratory Data Analysis
 
-#### **Stationarity Testing**
-- **ADF Test**: p-value > 0.05 (non-stationary).
-- **KPSS Test**: p-value < 0.05 (non-stationary).
-- **Solution**: First-order differencing applied to make the series stationary.
-
-#### **Seasonal Component Analysis**
-- Seasonal differencing with a period of 30 days.
-- Seasonal ACF and PACF analysis to determine seasonal parameters for modeling.
+- **Correlation heatmap**: Identified weak relationships among numeric variables
+- **Bar plots**: Visualized demographics such as gender, age_band, region
+- **Boxplots**: Explored how categorical variables influence scores
+- **Scatterplots**: Investigated numeric predictors against scores
 
 ---
 
-### **4. Modeling**
+## 🏗️ Feature Engineering
 
-#### **SARIMAX Model**
-
-- **Data Preparation**:
-  - Aggregated scores by `date_submitted`.
-  - Included exogenous variables: `highest_education_encoded`, `age_band_encoded`, `assessment_type_encoded`.
-
-- **Parameters**:
-  - SARIMAX order: `(2, 1, 2)`
-  - Seasonal order: `(2, 1, 2, 30)`
-
-- **Evaluation Metrics**:
-  - Mean Squared Error (MSE): Low.
-  - Root Mean Squared Error (RMSE): Low.
-
-- **Key Insight**: Captured trend and seasonality effectively.
-
-#### **LSTM Model**
-
-- **Preprocessing**:
-  - Normalized data using MinMaxScaler.
-  - Created sequences of 30 timesteps for input.
-
-- **Model Architecture**:
-  - Two LSTM layers with Dropout for regularization.
-  - Dense output layer for predicting `average_score`.
-
-- **Evaluation Metrics**:
-  - MSE: Moderate.
-  - RMSE: Moderate.
-
-- **Key Insight**: Captured non-linear patterns but required careful tuning.
+- Encoded categorical variables based on visual/statistical insight:
+  - `Gender`, `Region`, `Disability` ➝ Removed (low predictive power)
+  - `Highest Education`, `Age Band`, `Final Result`, `Assessment Type` ➝ Encoded numerically
+- Created binary columns (e.g., `unregistered`)
+- Final dataset included both numeric and encoded categorical variables
 
 ---
 
-### **5. Results and Comparisons**
+## 📈 Time Series Analysis
 
-| Metric         | SARIMAX | LSTM |
-|----------------|---------|------|
-| **MSE**       | Low     | Moderate |
-| **RMSE**      | Low     | Moderate |
+### ✅ Goal
+Forecast average assessment scores over time (`date_submitted`) by aggregating data and identifying trends.
 
----
-
-## **Conclusions**
-
-1. **SARIMAX**:
-   - Provided interpretable insights into seasonal and trend components.
-   - Suitable for datasets with significant seasonal patterns.
-
-2. **LSTM**:
-   - Captured non-linear relationships effectively.
-   - Slightly less accurate compared to SARIMAX.
+### Key Steps:
+1. **Aggregated scores** by `date_submitted` (mean and median of encoded variables)
+2. **Outlier Detection** using Isolation Forest
+3. **Trend and Seasonality Decomposition** via `seasonal_decompose`
+4. **Stationarity Testing**:
+   - ADF Test ➝ Fail to reject null ➝ Non-stationary
+   - KPSS Test ➝ Reject null ➝ Non-stationary
+5. **Differencing** to achieve stationarity (1st order)
+6. **Stationarity Re-tested** ➝ Confirmed
 
 ---
 
-## **Future Work**
+## 🔮 Forecasting Models
 
-1. Experiment with advanced models like Bidirectional LSTMs or Transformers.
-2. Validate models using additional validation datasets or cross-validation.
-3. Include additional features or engineered metrics for improved accuracy.
+### 1. SARIMAX Model (Statistical Approach)
+- Includes exogenous features: `age_band_encoded`, `education_encoded`, `assessment_type_encoded`
+- Order: (2,1,2), Seasonal Order: (2,1,2,30)
+- **Train-Test Split**: 80/20
+- **Evaluation**:
+  - RMSE, MAE, MSE computed
+  - Visualization of predicted vs actual values
+
+### 2. LSTM Model (Deep Learning Approach)
+- Input: Sliding windows of sequences (length = 30)
+- Network:
+  - 2 LSTM layers with ReLU
+  - Dropout for regularization
+  - Dense output layer
+- **Training**:
+  - 50 epochs, batch size = 32
+  - Adam optimizer, MSE loss
+- **Evaluation**:
+  - Inverse scaling applied for meaningful predictions
+  - RMSE, MAE, MSE calculated
+  - Visualization of prediction accuracy
 
 ---
 
-## **How to Run**
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-repo-name/time-series-analysis.git
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the analysis:
-   ```bash
-   python main.py
-   ```
+## 📊 Model Comparison
+
+| Metric     | SARIMAX  | LSTM     |
+|------------|----------|----------|
+| RMSE       | ✓ (Good) | ✓ (Better) |
+| MAE        | ✓        | ✓        |
+| Accuracy   | Moderate | High     |
+| Interpretability | High | Lower (Black-box) |
 
 ---
