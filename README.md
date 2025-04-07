@@ -1,7 +1,3 @@
-Here's a detailed and professional `README.md` file based on your comprehensive project implementation:
-
----
-
 # 📊 Time Series Analysis & Forecasting on Open University Learning Data
 
 This project performs an extensive **big data pipeline and predictive time series modeling** on Open University learning data. It involves **data preprocessing with PySpark**, **visual exploration**, **feature engineering**, **stationarity testing**, and **forecasting using SARIMAX and LSTM** models. The aim is to analyze and predict student assessment scores over time based on multiple demographic and academic variables.
