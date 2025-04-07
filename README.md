@@ -1,7 +1,3 @@
-Absolutely! Here's a **restructured, cleaner, and more professional version** of your project report. It's been organized into logical sections, clarified for readability, and designed for a technical or academic audience (could also be used in a portfolio or paper).
-
----
-
 # 📊 **Time Series Analysis of Student Performance at Open University**
 
 ---
@@ -151,24 +147,8 @@ While LSTM was stable, **SARIMAX performed better**, likely due to limited data 
 
 ---
 
-## 🔮 11. **Recommendations & Future Work**
 
-### Modeling
-- Use GRU or LSTM with attention for deeper modeling
-- Explore transformer-based architectures for time series
-
-### Feature Engineering
-- Extract VLE activity time patterns (clickstream over time)
-- Include engagement-based features like time spent, click frequency
-
-### Applications
-- Dropout prediction
-- Student segmentation and personalized interventions
-- Course-level performance optimization
-
----
-
-## 📌 12. Summary
+## 📌 11. Summary
 
 This project demonstrates a complete pipeline from **Big Data processing** with Spark, through **feature engineering and EDA**, to **advanced modeling** using **time series techniques** and **neural networks**.
 
@@ -176,9 +156,3 @@ We show that **student performance can be forecasted** with reasonable accuracy 
 
 ---
 
-Let me know if you'd like:
-- A version with embedded plots and graphs
-- Export to PDF or DOCX
-- Slide deck summary
-
-Want to add anything like team members, course, or university info?
