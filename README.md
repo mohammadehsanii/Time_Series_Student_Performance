@@ -1,121 +1,184 @@
-# 📊 Time Series Analysis & Forecasting on Open University Learning Data
-
-This project performs an extensive **big data pipeline and predictive time series modeling** on Open University learning data. It involves **data preprocessing with PySpark**, **visual exploration**, **feature engineering**, **stationarity testing**, and **forecasting using SARIMAX and LSTM** models. The aim is to analyze and predict student assessment scores over time based on multiple demographic and academic variables.
+Absolutely! Here's a **restructured, cleaner, and more professional version** of your project report. It's been organized into logical sections, clarified for readability, and designed for a technical or academic audience (could also be used in a portfolio or paper).
 
 ---
 
-## 🔧 Setup Instructions
-
-### 1. Install Required Libraries
-```bash
-pip install pyspark matplotlib scikit-learn statsmodels missingno
-```
-
-### 2. Tools Used
-- `PySpark` for handling large datasets
-- `Pandas/Matplotlib/Seaborn` for EDA and visualization
-- `scikit-learn` for anomaly detection
-- `statsmodels` for statistical tests and time series decomposition
-- `TensorFlow` for deep learning-based LSTM forecasting
-- `Google Colab` for GPU-accelerated model training
+# 📊 **Time Series Analysis of Student Performance at Open University**
 
 ---
 
-## 📂 Dataset Overview
+## 🔍 1. **Project Overview**
 
-The dataset consists of 7 CSV files:
-- `courses.csv`
-- `assessments.csv`
-- `studentAssessment.csv`
-- `studentInfo.csv`
-- `studentRegistration.csv`
-- `studentVle.csv`
-- `vle.csv`
-
-These files are merged using common keys to create a unified dataset for modeling and analysis.
+This project analyzes and forecasts student performance using the **Open University Learning Analytics Dataset (OULAD)**. The goal is to understand temporal patterns in student scores, detect anomalies, and build models that predict performance over time. We leveraged **PySpark** for large-scale data processing and implemented both **statistical (SARIMAX)** and **deep learning (LSTM)** models for forecasting.
 
 ---
 
-## 🧹 Data Preprocessing
+## 🧰 2. **Technologies Used**
 
-- **Data Merging**: Joined all datasets based on student/module identifiers.
-- **Missing Values**:
-  - Removed columns with excessive missing values (e.g., `week_from`, `week_to`)
-  - Dropped rows with missing values in key predictors
-- **Data Reduction**: Removed unnecessary columns (IDs, redundant attributes)
-- **Sampling**: Due to the large size (~60M rows), sampled a small fraction for EDA
-
----
-
-## 📊 Exploratory Data Analysis
-
-- **Correlation heatmap**: Identified weak relationships among numeric variables
-- **Bar plots**: Visualized demographics such as gender, age_band, region
-- **Boxplots**: Explored how categorical variables influence scores
-- **Scatterplots**: Investigated numeric predictors against scores
+- **Big Data Processing**: PySpark  
+- **Data Analysis & Visualization**: Pandas, Matplotlib, Seaborn  
+- **Time Series Modeling**: Statsmodels (ADF, KPSS, SARIMAX)  
+- **Machine Learning**: Scikit-learn (Isolation Forest)  
+- **Deep Learning**: TensorFlow/Keras (LSTM)  
 
 ---
 
-## 🏗️ Feature Engineering
+## 📂 3. **Dataset Description**
 
-- Encoded categorical variables based on visual/statistical insight:
-  - `Gender`, `Region`, `Disability` ➝ Removed (low predictive power)
-  - `Highest Education`, `Age Band`, `Final Result`, `Assessment Type` ➝ Encoded numerically
-- Created binary columns (e.g., `unregistered`)
-- Final dataset included both numeric and encoded categorical variables
+The dataset includes 7 files from Open University’s records of over **60 million rows**, covering:
 
----
-
-## 📈 Time Series Analysis
-
-### ✅ Goal
-Forecast average assessment scores over time (`date_submitted`) by aggregating data and identifying trends.
-
-### Key Steps:
-1. **Aggregated scores** by `date_submitted` (mean and median of encoded variables)
-2. **Outlier Detection** using Isolation Forest
-3. **Trend and Seasonality Decomposition** via `seasonal_decompose`
-4. **Stationarity Testing**:
-   - ADF Test ➝ Fail to reject null ➝ Non-stationary
-   - KPSS Test ➝ Reject null ➝ Non-stationary
-5. **Differencing** to achieve stationarity (1st order)
-6. **Stationarity Re-tested** ➝ Confirmed
+| File                  | Description                                      |
+|-----------------------|--------------------------------------------------|
+| `studentInfo.csv`     | Demographic and final result data                |
+| `studentAssessment.csv` | Assessment submission and score info            |
+| `studentVle.csv`      | Clickstream activity by students                 |
+| `vle.csv`             | Metadata of learning activities                  |
+| `assessments.csv`     | Assessment types, weights, and dates             |
+| `studentRegistration.csv` | Registration/unregistration info             |
+| `courses.csv`         | Course structure and presentation dates          |
 
 ---
 
-## 🔮 Forecasting Models
+## 🧹 4. **Data Processing Workflow**
 
-### 1. SARIMAX Model (Statistical Approach)
-- Includes exogenous features: `age_band_encoded`, `education_encoded`, `assessment_type_encoded`
-- Order: (2,1,2), Seasonal Order: (2,1,2,30)
-- **Train-Test Split**: 80/20
-- **Evaluation**:
-  - RMSE, MAE, MSE computed
-  - Visualization of predicted vs actual values
+### 4.1 Merging
+All files were merged using PySpark via shared keys such as `id_student`, `id_assessment`, `code_module`, and `code_presentation`.
 
-### 2. LSTM Model (Deep Learning Approach)
-- Input: Sliding windows of sequences (length = 30)
-- Network:
-  - 2 LSTM layers with ReLU
-  - Dropout for regularization
-  - Dense output layer
-- **Training**:
-  - 50 epochs, batch size = 32
-  - Adam optimizer, MSE loss
-- **Evaluation**:
-  - Inverse scaling applied for meaningful predictions
-  - RMSE, MAE, MSE calculated
-  - Visualization of prediction accuracy
+### 4.2 Missing Data Handling
+- Columns with excessive missing data (`week_from`, `week_to`) were dropped.
+- Rows with missing `score`, `imd_band`, `date_registration`, or `date` were removed.
+
+### 4.3 Dimensionality Reduction
+Features with no clear impact on score were dropped:
+- **Removed**: gender, region, disability, imd_band, course identifiers, etc.
+- **Encoded**:
+  - `age_band`: encoded as `1` if `55<=`, else `0`
+  - `highest_education`: encoded as `1` if `Post Graduate Qualification`, else `0`
+  - `final_result`: 0 = Fail/Withdrawn, 1 = Pass, 2 = Distinction
+  - `assessment_type`: 0 = Exam, 1 = TMA, 2 = CMA
 
 ---
 
-## 📊 Model Comparison
+## 📊 5. **Exploratory Data Analysis (EDA)**
 
-| Metric     | SARIMAX  | LSTM     |
-|------------|----------|----------|
-| RMSE       | ✓ (Good) | ✓ (Better) |
-| MAE        | ✓        | ✓        |
-| Accuracy   | Moderate | High     |
-| Interpretability | High | Lower (Black-box) |
+- **Correlation Heatmap**: No strong linear correlation found between numeric variables and score.
+- **Boxplots**: Showed minimal differences across gender, region, disability, suggesting little predictive power.
+- **Education & Assessment Type**: Found to impact scores significantly.
 
 ---
+
+## 📈 6. **Time Series Construction**
+
+### 6.1 Aggregation
+- Aggregated `average_score` per `date_submitted`
+- Median values were taken for categorical variables
+
+### 6.2 Truncation
+- Limited the analysis to the **first 210 days** due to sparse entries afterward.
+
+### 6.3 Anomaly Detection
+- **Isolation Forest** used to identify and remove 11 score anomalies.
+- **Forward fill** used to handle missing values caused by outlier removal.
+
+---
+
+## 🧪 7. **Stationarity Check**
+
+| Test   | Statistic | p-value | Result               |
+|--------|-----------|---------|----------------------|
+| ADF    | -2.33     | 0.16    | Non-stationary       |
+| KPSS   | 1.34      | 0.01    | Non-stationary       |
+
+**➡ First-order differencing** applied → Tests repeated:
+
+| Test   | Statistic | p-value | Result          |
+|--------|-----------|---------|-----------------|
+| ADF    | -15.42    | ≈ 0     | Stationary ✅    |
+| KPSS   | 0.165     | > 0.1   | Stationary ✅    |
+
+---
+
+## 🔄 8. **SARIMAX Modeling**
+
+### 8.1 Model Configuration
+- **Non-seasonal Order (p,d,q)**: (2, 1, 2)
+- **Seasonal Order (P,D,Q,s)**: (2, 1, 2, 30)
+- **Exogenous variables**: `age_band_encoded`, `highest_education_encoded`, `assessment_type_encoded`
+
+### 8.2 Model Performance
+| Metric | Value   |
+|--------|---------|
+| **MSE**    | 8.78    |
+| **MAE**    | 2.38    |
+| **RMSE**   | 2.96    |
+
+- **Significant predictor**: `assessment_type_encoded` (p < 0.001)
+
+### 8.3 Forecast Visualization
+Forecast closely tracked the test data, confirming good fit.
+
+---
+
+## 🤖 9. **LSTM Model**
+
+### 9.1 Preprocessing
+- **Features**: `average_score` + 4 encoded variables
+- **Sequence length**: 30 days
+- **Scaler**: MinMaxScaler
+
+### 9.2 Model Architecture
+- LSTM(100) → Dropout(0.2)
+- LSTM(50) → Dropout(0.2)
+- Dense(1)
+
+### 9.3 Performance
+| Metric | Value   |
+|--------|---------|
+| **MSE**    | 18.80   |
+| **MAE**    | 3.81    |
+| **RMSE**   | 4.34    |
+
+### 9.4 Evaluation
+While LSTM was stable, **SARIMAX performed better**, likely due to limited data size and clearer time dependencies.
+
+---
+
+## ✅ 10. **Key Findings**
+
+- **Assessment type** is a strong indicator of performance.
+- **Final result and highest education** level offer predictive power.
+- **Demographic data** (region, gender, etc.) provided limited value.
+- **SARIMAX** outperforms **LSTM** for this use case.
+
+---
+
+## 🔮 11. **Recommendations & Future Work**
+
+### Modeling
+- Use GRU or LSTM with attention for deeper modeling
+- Explore transformer-based architectures for time series
+
+### Feature Engineering
+- Extract VLE activity time patterns (clickstream over time)
+- Include engagement-based features like time spent, click frequency
+
+### Applications
+- Dropout prediction
+- Student segmentation and personalized interventions
+- Course-level performance optimization
+
+---
+
+## 📌 12. Summary
+
+This project demonstrates a complete pipeline from **Big Data processing** with Spark, through **feature engineering and EDA**, to **advanced modeling** using **time series techniques** and **neural networks**.
+
+We show that **student performance can be forecasted** with reasonable accuracy using minimal but well-selected features, and that **simple time-series models like SARIMAX** can outperform more complex deep learning approaches in limited-data scenarios.
+
+---
+
+Let me know if you'd like:
+- A version with embedded plots and graphs
+- Export to PDF or DOCX
+- Slide deck summary
+
+Want to add anything like team members, course, or university info?
