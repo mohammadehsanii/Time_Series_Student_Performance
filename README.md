@@ -1,7 +1,8 @@
 # 📊 **Time Series Analysis of Student Performance at Open University**
 
 ---
-
+_To view the plots and charts, please visit my [Kaggle Notebook](Link)._
+---
 ## 🔍 1. **Project Overview**
 
 This project analyzes and forecasts student performance using the **Open University Learning Analytics Dataset (OULAD)**. The goal is to understand temporal patterns in student scores, detect anomalies, and build models that predict performance over time. We leveraged **PySpark** for large-scale data processing and implemented both **statistical (SARIMAX)** and **deep learning (LSTM)** models for forecasting.
