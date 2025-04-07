@@ -1,7 +1,7 @@
 # 📊 **Time Series Analysis of Student Performance at Open University**
 
 
-_To view the plots and charts, please visit my [Kaggle Notebook](Link)._
+<sub>To view the plots and charts, please visit my Kaggle Notebook.</sub>
 ---
 ## 🔍 1. **Project Overview**
 
